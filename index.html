@@ -469,47 +469,50 @@ svg.trend { width:100%; height:100%; }
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
 .live-dot { width:7px; height:7px; border-radius:50%; background:#00B96B; animation:pulse 1.5s infinite; }
 
-/* ── 真机适配：隐藏手机壳，填满屏幕 ── */
+/* ── 真机适配：像原生 App 一样全屏运行 ── */
 @media screen and (max-width: 480px) {
-  /* iOS Safari 需要同时设置 html/body 高度 */
-  html { height: -webkit-fill-available; }
+  /* 1. 重置 body：关掉 flex 居中，改成 block */
   body {
+    display: block;
     background: var(--bg);
-    align-items: stretch;
-    justify-content: flex-start;
-    min-height: 100vh;
-    min-height: -webkit-fill-available;
+    overflow: hidden;
+    height: 100%;
+    margin: 0; padding: 0;
   }
-  /* 手机壳撑满屏幕，去掉装饰性边框 */
+  /* 2. phone-shell 用 fixed + inset:0 填满全屏
+        这是 iOS 最可靠的全屏方式，不受地址栏影响 */
   .phone-shell {
+    position: fixed;
+    inset: 0;
     width: 100%;
-    height: 100vh;
-    height: -webkit-fill-available;
+    height: 100%;
     border-radius: 0;
     box-shadow: none;
     background: var(--bg);
     overflow: hidden;
   }
-  /* phone-screen 保持 absolute，贴紧手机壳四边 */
+  /* 3. phone-screen 贴满 phone-shell */
   .phone-screen {
     position: absolute;
     inset: 0;
     border-radius: 0;
   }
-  /* 隐藏 demo 用的刘海装饰 */
+  /* 4. 隐藏 demo 专用的刘海和假状态栏内容
+        真机上系统会自己显示时间/信号 */
   .notch { display: none; }
-  /* 顶部安全区（兼容 Dynamic Island / 刘海） */
+  .status-bar > * { display: none; }
+  /* status-bar 变成安全区占位块，高度 = 刘海/灵动岛高度 */
   .status-bar {
-    height: calc(env(safe-area-inset-top, 44px) + 12px);
-    padding-top: env(safe-area-inset-top, 44px);
-    padding-bottom: 2px;
+    height: env(safe-area-inset-top, 44px);
+    padding: 0;
+    flex-shrink: 0;
   }
-  /* 底部安全区（Home 条） */
+  /* 5. 底部 Home 条安全区 */
   .bottom-nav {
-    height: calc(62px + env(safe-area-inset-bottom, 0px));
-    padding-bottom: calc(6px + env(safe-area-inset-bottom, 0px));
+    height: calc(60px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: env(safe-area-inset-bottom, 0px);
   }
-  /* 指标详情页、弹窗去圆角并处理顶部安全区 */
+  /* 6. 详情页和弹窗同步处理 */
   .metric-detail { border-radius: 0; }
   .detail-header {
     padding-top: calc(env(safe-area-inset-top, 44px) + 14px);
